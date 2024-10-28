@@ -22,7 +22,6 @@ Result<> INodeGeom3dIO::ReadNodeGeom3dData(DataStructureReader& dataStructureRea
 
   geom.setPolyhedronListId(ReadDataId(groupReader, IOConstants::k_PolyhedronListTag));
   geom.setPolyhedraDataId(ReadDataId(groupReader, IOConstants::k_PolyhedronDataTag));
-  geom.setUnsharedFacedId(ReadDataId(groupReader, IOConstants::k_UnsharedFaceListTag));
 
   return {};
 }
@@ -42,12 +41,6 @@ Result<> INodeGeom3dIO::WriteNodeGeom3dData(DataStructureWriter& dataStructureWr
   }
 
   result = WriteDataId(groupWriter, geom.getPolyhedraDataId(), IOConstants::k_PolyhedronDataTag);
-  if(result.invalid())
-  {
-    return result;
-  }
-
-  result = WriteDataId(groupWriter, geom.getUnsharedFacesId(), IOConstants::k_UnsharedFaceListTag);
   if(result.invalid())
   {
     return result;

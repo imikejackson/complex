@@ -58,7 +58,7 @@
               "TriangleDataContainer/Vertex Data",
               "TriangleDataContainer/Face Data/FaceLabels",
               "TriangleDataContainer/Vertex Data/NodeType",
-              "TriangleDataContainer/Edge List",
+              "TriangleDataContainer/SharedEdgeList",
               "TriangleDataContainer/Face Data/FaceAreas",
               "TriangleDataContainer/Face Data/FaceNormals",
               "TriangleDataContainer/Face Data/FaceDihedralAngles",

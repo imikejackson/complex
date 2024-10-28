@@ -151,11 +151,7 @@ std::shared_ptr<DataObject> TriangleGeom::deepCopy(const DataPath& copyPath)
     {
       copy->m_CellCentroidsDataArrayId = eltCentroidsCopy->getId();
     }
-    if(const auto unsharedEdgesCopy = dataStruct.getDataAs<DataArray<MeshIndexType>>(copyPath.createChildPath(k_UnsharedEdges)); unsharedEdgesCopy != nullptr)
-    {
-      copy->m_UnsharedEdgeListId = unsharedEdgesCopy->getId();
-    }
-    if(const auto edgesCopy = dataStruct.getDataAs<UInt64Array>(copyPath.createChildPath(k_Edges)); edgesCopy != nullptr)
+    if(const auto edgesCopy = dataStruct.getDataAs<UInt64Array>(copyPath.createChildPath(k_SharedEdgeList)); edgesCopy != nullptr)
     {
       copy->m_EdgeDataArrayId = edgesCopy->getId();
     }
@@ -299,7 +295,7 @@ IGeometry::StatusCode TriangleGeom::findEdges(bool recalculate)
   if(edgeList == nullptr)
   {
     auto dataStore = std::make_unique<DataStore<uint64>>(std::vector<usize>{0}, std::vector<usize>{2}, 0);
-    edgeList = DataArray<uint64>::Create(*getDataStructure(), k_Edges, std::move(dataStore), getId());
+    edgeList = DataArray<uint64>::Create(*getDataStructure(), k_SharedEdgeList, std::move(dataStore), getId());
   }
   if(edgeList == nullptr)
   {
@@ -308,27 +304,5 @@ IGeometry::StatusCode TriangleGeom::findEdges(bool recalculate)
   }
   GeometryHelpers::Connectivity::Find2DElementEdges(getFaces(), edgeList);
   m_EdgeDataArrayId = edgeList->getId();
-  return 1;
-}
-
-IGeometry::StatusCode TriangleGeom::findUnsharedEdges(bool recalculate)
-{
-  auto* unsharedEdgeList = getDataStructureRef().getDataAsUnsafe<DataArray<MeshIndexType>>(m_UnsharedEdgeListId);
-  if(unsharedEdgeList != nullptr && !recalculate)
-  {
-    return 0;
-  }
-  if(unsharedEdgeList == nullptr)
-  {
-    auto dataStore = std::make_unique<DataStore<MeshIndexType>>(std::vector<usize>{0}, std::vector<usize>{2}, 0);
-    unsharedEdgeList = DataArray<MeshIndexType>::Create(*getDataStructure(), k_UnsharedEdges, std::move(dataStore), getId());
-  }
-  if(unsharedEdgeList == nullptr)
-  {
-    m_UnsharedEdgeListId.reset();
-    return -1;
-  }
-  GeometryHelpers::Connectivity::Find2DUnsharedEdges(getFaces(), unsharedEdgeList);
-  m_UnsharedEdgeListId = unsharedEdgeList->getId();
   return 1;
 }

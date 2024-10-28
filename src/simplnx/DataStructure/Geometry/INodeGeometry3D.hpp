@@ -8,9 +8,8 @@ class SIMPLNX_EXPORT INodeGeometry3D : public INodeGeometry2D
 {
 public:
   static inline constexpr StringLiteral k_PolyhedronDataName = "Polyhedron Data";
-  static inline constexpr StringLiteral k_TriangleFaceList = "Shared Tri List";
-  static inline constexpr StringLiteral k_QuadFaceList = "Shared Quad List";
   static inline constexpr StringLiteral k_TypeName = "INodeGeometry3D";
+  static inline constexpr StringLiteral k_SharedFaceList = "SharedFaceList";
 
   INodeGeometry3D() = delete;
   INodeGeometry3D(const INodeGeometry3D&) = default;
@@ -77,34 +76,6 @@ public:
    * @brief Deletes the current face list array.
    */
   void deleteFaces();
-
-  /**
-   * @brief
-   * @return
-   */
-  const std::optional<IdType>& getUnsharedFacesId() const;
-
-  /**
-   * @brief
-   * @return
-   */
-  void setUnsharedFacedId(const OptionalId& id);
-
-  /**
-   * @brief Creates and assigns the unshared face list array for the current values.
-   */
-  virtual StatusCode findUnsharedFaces(bool recalculate) = 0;
-
-  /**
-   * @brief Returns a pointer to the unshared face list array.
-   * @return
-   */
-  const SharedFaceList* getUnsharedFaces() const;
-
-  /**
-   * @brief Deletes the current unshared face list array.
-   */
-  void deleteUnsharedFaces();
 
   /**
    * @brief Returns the number of vertices in the cell.

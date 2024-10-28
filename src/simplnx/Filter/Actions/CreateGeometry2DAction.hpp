@@ -26,7 +26,7 @@ public:
   using DimensionType = std::vector<size_t>;
 
   static constexpr StringLiteral k_DefaultVerticesName = "SharedVertexList";
-  static constexpr StringLiteral k_DefaultFacesName = "SharedTriList";
+  static constexpr StringLiteral k_DefaultFacesName = "SharedFaceList";
 
   /**
    * @brief Constructor to create the 2D geometry and allocate a default arrays for the shared vertex & shared face lists

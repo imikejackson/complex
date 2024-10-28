@@ -19,7 +19,7 @@ class SIMPLNX_EXPORT INodeGeometry2D : public INodeGeometry1D
 {
 public:
   static inline constexpr StringLiteral k_FaceDataName = "Face Data";
-  static inline constexpr StringLiteral k_Edges = "Shared Edge List";
+  static inline constexpr StringLiteral k_SharedEdgeList = "SharedEdgeList";
   static inline constexpr StringLiteral k_TypeName = "INodeGeometry2D";
 
   INodeGeometry2D() = delete;
@@ -113,32 +113,6 @@ public:
    * @brief Deletes the shared edge list and removes it from the DataStructure.
    */
   void deleteEdges();
-
-  /**
-   * @brief
-   * @return
-   */
-  const std::optional<IdType>& getUnsharedEdgesId() const;
-
-  void setUnsharedEdgesId(const OptionalId& unsharedEdgesId);
-
-  /**
-   * @brief
-   * @return StatusCode
-   */
-  virtual StatusCode findUnsharedEdges(bool recalculate) = 0;
-
-  /**
-   * @brief Returns a const pointer to the unshared edge list. Returns nullptr
-   * if no unshared edge list could be found.
-   * @return const SharedEdgeList*
-   */
-  const SharedEdgeList* getUnsharedEdges() const;
-
-  /**
-   * @brief Deletes the unshared edge list and removes it from the DataStructure.
-   */
-  void deleteUnsharedEdges();
 
   /****************************************************************************
    * These functions get values related to where the Vertex Coordinates are

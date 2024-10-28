@@ -127,27 +127,6 @@ void INodeGeometry2D::deleteEdges()
   m_EdgeDataArrayId.reset();
 }
 
-const std::optional<INodeGeometry2D::IdType>& INodeGeometry2D::getUnsharedEdgesId() const
-{
-  return m_UnsharedEdgeListId;
-}
-
-void INodeGeometry2D::setUnsharedEdgesId(const OptionalId& unsharedEdgesId)
-{
-  m_UnsharedEdgeListId = unsharedEdgesId;
-}
-
-const INodeGeometry2D::SharedEdgeList* INodeGeometry2D::getUnsharedEdges() const
-{
-  return getDataStructureRef().getDataAs<SharedEdgeList>(m_UnsharedEdgeListId);
-}
-
-void INodeGeometry2D::deleteUnsharedEdges()
-{
-  getDataStructureRef().removeData(m_UnsharedEdgeListId);
-  m_UnsharedEdgeListId.reset();
-}
-
 const std::optional<INodeGeometry2D::IdType>& INodeGeometry2D::getFaceAttributeMatrixId() const
 {
   return m_FaceAttributeMatrixId;
@@ -208,7 +187,7 @@ void INodeGeometry2D::setFaceAttributeMatrix(const AttributeMatrix& attributeMat
 INodeGeometry2D::SharedEdgeList* INodeGeometry2D::createSharedEdgeList(usize numEdges)
 {
   auto dataStore = std::make_unique<DataStore<MeshIndexType>>(std::vector<usize>{numEdges}, std::vector<usize>{2}, 0);
-  SharedEdgeList* edges = DataArray<MeshIndexType>::Create(*getDataStructure(), k_Edges, std::move(dataStore), getId());
+  SharedEdgeList* edges = DataArray<MeshIndexType>::Create(*getDataStructure(), k_SharedEdgeList, std::move(dataStore), getId());
   return edges;
 }
 

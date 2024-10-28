@@ -159,19 +159,13 @@ std::shared_ptr<DataObject> HexahedralGeom::deepCopy(const DataPath& copyPath)
     {
       copy->m_CellCentroidsDataArrayId = eltCentroidsCopy->getId();
     }
-    if(const auto unsharedEdgesCopy = dataStruct.getDataAs<DataArray<MeshIndexType>>(copyPath.createChildPath(k_UnsharedEdges)); unsharedEdgesCopy != nullptr)
-    {
-      copy->m_UnsharedEdgeListId = unsharedEdgesCopy->getId();
-    }
-    if(const auto edgesCopy = dataStruct.getDataAs<DataArray<MeshIndexType>>(copyPath.createChildPath(INodeGeometry2D::k_Edges)); edgesCopy != nullptr)
+
+    if(const auto edgesCopy = dataStruct.getDataAs<DataArray<MeshIndexType>>(copyPath.createChildPath(INodeGeometry2D::k_SharedEdgeList)); edgesCopy != nullptr)
     {
       copy->m_EdgeDataArrayId = edgesCopy->getId();
     }
-    if(const auto unsharedFacesCopy = dataStruct.getDataAs<DataArray<MeshIndexType>>(copyPath.createChildPath(k_UnsharedFaces)); unsharedFacesCopy != nullptr)
-    {
-      copy->m_UnsharedFaceListId = unsharedFacesCopy->getId();
-    }
-    if(const auto facesCopy = dataStruct.getDataAs<DataArray<MeshIndexType>>(copyPath.createChildPath(INodeGeometry3D::k_QuadFaceList)); facesCopy != nullptr)
+
+    if(const auto facesCopy = dataStruct.getDataAs<DataArray<MeshIndexType>>(copyPath.createChildPath(INodeGeometry3D::k_SharedFaceList)); facesCopy != nullptr)
     {
       copy->m_FaceListId = facesCopy->getId();
     }
@@ -377,6 +371,7 @@ IGeometry::StatusCode HexahedralGeom::findFaces(bool recalculate)
   return 1;
 }
 
+#if 0
 IGeometry::StatusCode HexahedralGeom::findUnsharedEdges(bool recalculate)
 {
   auto* unsharedEdgeList = getDataStructureRef().getDataAsUnsafe<DataArray<MeshIndexType>>(m_UnsharedEdgeListId);
@@ -420,3 +415,4 @@ IGeometry::StatusCode HexahedralGeom::findUnsharedFaces(bool recalculate)
   m_UnsharedFaceListId = unsharedQuadList->getId();
   return 1;
 }
+#endif

@@ -78,7 +78,7 @@ TEST_CASE("SimplnxCore::QuickSurfaceMeshFilter", "[SimplnxCore][QuickSurfaceMesh
     REQUIRE(vertices->getNumberOfTuples() == 28894);
 
     // Compare the shift values
-    CompareArrays<IGeometry::MeshIndexType>(dataStructure, triangleGeometryPath.createChildPath("SharedTriList"), DataPath({exemplarGeometryPath, "SharedTriList"}));
+    CompareArrays<IGeometry::MeshIndexType>(dataStructure, triangleGeometryPath.createChildPath("SharedFaceList"), DataPath({exemplarGeometryPath, "SharedTriList"}));
     CompareArrays<float32>(dataStructure, triangleGeometryPath.createChildPath("SharedVertexList"), DataPath({exemplarGeometryPath, "SharedVertexList"}));
   }
 

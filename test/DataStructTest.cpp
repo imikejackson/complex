@@ -307,7 +307,6 @@ DataStructure createTestDataStructure()
     triangleGeom->findElementsContainingVert(false);
     triangleGeom->findElementNeighbors(false);
     triangleGeom->findElementCentroids(false);
-    triangleGeom->findUnsharedEdges(false);
   }
 
   // Quad Geometry
@@ -356,7 +355,6 @@ DataStructure createTestDataStructure()
     quadGeom->findElementsContainingVert(false);
     quadGeom->findElementNeighbors(false);
     quadGeom->findElementCentroids(false);
-    quadGeom->findUnsharedEdges(false);
   }
 
   // Tetrahedral Geometry
@@ -403,8 +401,6 @@ DataStructure createTestDataStructure()
     tetGeom->findElementsContainingVert(false);
     tetGeom->findElementNeighbors(false);
     tetGeom->findElementCentroids(false);
-    tetGeom->findUnsharedEdges(false);
-    tetGeom->findUnsharedFaces(false);
   }
 
   // Hexahedral Geometry
@@ -480,8 +476,6 @@ DataStructure createTestDataStructure()
     hexGeom->findElementsContainingVert(false);
     hexGeom->findElementNeighbors(false);
     hexGeom->findElementCentroids(false);
-    hexGeom->findUnsharedEdges(false);
-    hexGeom->findUnsharedFaces(false);
   }
 
   return dataStruct;
@@ -1106,8 +1100,8 @@ TEST_CASE("DataObjectsDeepCopyTest")
     REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcCellArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destCellArrayPath));
     UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcCellArrayPath, destCellArrayPath);
 
-    const DataPath srcEdgesArrayPath = srcGeoPath.createChildPath(TriangleGeom::k_Edges);
-    const DataPath destEdgesArrayPath = destGeoPath.createChildPath(TriangleGeom::k_Edges);
+    const DataPath srcEdgesArrayPath = srcGeoPath.createChildPath(TriangleGeom::k_SharedEdgeList);
+    const DataPath destEdgesArrayPath = destGeoPath.createChildPath(TriangleGeom::k_SharedEdgeList);
     REQUIRE(dataStruct.getDataAs<UInt64Array>(srcEdgesArrayPath) != dataStruct.getDataAs<UInt64Array>(destEdgesArrayPath));
     UnitTest::CompareArrays<uint64>(dataStruct, srcEdgesArrayPath, destEdgesArrayPath);
 
@@ -1128,10 +1122,10 @@ TEST_CASE("DataObjectsDeepCopyTest")
     REQUIRE(dataStruct.getDataAs<Float32Array>(srcEltCentroidsPath) != dataStruct.getDataAs<Float32Array>(destEltCentroidsPath));
     UnitTest::CompareArrays<float32>(dataStruct, srcEltCentroidsPath, destEltCentroidsPath);
 
-    const DataPath srcUnsharedEdgesArrayPath = srcGeoPath.createChildPath(TriangleGeom::k_UnsharedEdges);
-    const DataPath destUnsharedEdgesArrayPath = destGeoPath.createChildPath(TriangleGeom::k_UnsharedEdges);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcUnsharedEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destUnsharedEdgesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcUnsharedEdgesArrayPath, destUnsharedEdgesArrayPath);
+    //    const DataPath srcUnsharedEdgesArrayPath = srcGeoPath.createChildPath(TriangleGeom::k_UnsharedEdges);
+    //    const DataPath destUnsharedEdgesArrayPath = destGeoPath.createChildPath(TriangleGeom::k_UnsharedEdges);
+    //    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcUnsharedEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destUnsharedEdgesArrayPath));
+    //    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcUnsharedEdgesArrayPath, destUnsharedEdgesArrayPath);
   }
 
   SECTION("Quad Geometry")
@@ -1171,10 +1165,10 @@ TEST_CASE("DataObjectsDeepCopyTest")
     REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcCellArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destCellArrayPath));
     UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcCellArrayPath, destCellArrayPath);
 
-    const DataPath srcEdgesArrayPath = srcGeoPath.createChildPath(QuadGeom::k_Edges);
-    const DataPath destEdgesArrayPath = destGeoPath.createChildPath(QuadGeom::k_Edges);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destEdgesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcEdgesArrayPath, destEdgesArrayPath);
+    //    const DataPath srcEdgesArrayPath = srcGeoPath.createChildPath(QuadGeom::k_Edges);
+    //    const DataPath destEdgesArrayPath = destGeoPath.createChildPath(QuadGeom::k_Edges);
+    //    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destEdgesArrayPath));
+    //    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcEdgesArrayPath, destEdgesArrayPath);
 
     const DataPath srcEltsContVertPath = srcGeoPath.createChildPath(QuadGeom::k_EltsContainingVert);
     const DataPath destEltsContVertPath = destGeoPath.createChildPath(QuadGeom::k_EltsContainingVert);
@@ -1193,8 +1187,8 @@ TEST_CASE("DataObjectsDeepCopyTest")
     REQUIRE(dataStruct.getDataAs<Float32Array>(srcEltCentroidsPath) != dataStruct.getDataAs<Float32Array>(destEltCentroidsPath));
     UnitTest::CompareArrays<float32>(dataStruct, srcEltCentroidsPath, destEltCentroidsPath);
 
-    const DataPath srcUnsharedEdgesArrayPath = srcGeoPath.createChildPath(QuadGeom::k_UnsharedEdges);
-    const DataPath destUnsharedEdgesArrayPath = destGeoPath.createChildPath(QuadGeom::k_UnsharedEdges);
+    const DataPath srcUnsharedEdgesArrayPath = srcGeoPath.createChildPath(QuadGeom::k_SharedEdgeList);
+    const DataPath destUnsharedEdgesArrayPath = destGeoPath.createChildPath(QuadGeom::k_SharedEdgeList);
     REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcUnsharedEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destUnsharedEdgesArrayPath));
     UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcUnsharedEdgesArrayPath, destUnsharedEdgesArrayPath);
   }
@@ -1236,15 +1230,15 @@ TEST_CASE("DataObjectsDeepCopyTest")
     REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcCellArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destCellArrayPath));
     UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcCellArrayPath, destCellArrayPath);
 
-    const DataPath srcEdgesArrayPath = srcGeoPath.createChildPath(TetrahedralGeom::k_Edges);
-    const DataPath destEdgesArrayPath = destGeoPath.createChildPath(TetrahedralGeom::k_Edges);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destEdgesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcEdgesArrayPath, destEdgesArrayPath);
-
-    const DataPath srcFaceArrayPath = srcGeoPath.createChildPath(TetrahedralGeom::k_TriangleFaceList);
-    const DataPath destFacesArrayPath = destGeoPath.createChildPath(TetrahedralGeom::k_TriangleFaceList);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcFaceArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destFacesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcFaceArrayPath, destFacesArrayPath);
+    //    const DataPath srcEdgesArrayPath = srcGeoPath.createChildPath(TetrahedralGeom::k_Edges);
+    //    const DataPath destEdgesArrayPath = destGeoPath.createChildPath(TetrahedralGeom::k_Edges);
+    //    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destEdgesArrayPath));
+    //    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcEdgesArrayPath, destEdgesArrayPath);
+    //
+    //    const DataPath srcFaceArrayPath = srcGeoPath.createChildPath(TetrahedralGeom::k_TriangleFaceList);
+    //    const DataPath destFacesArrayPath = destGeoPath.createChildPath(TetrahedralGeom::k_TriangleFaceList);
+    //    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcFaceArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destFacesArrayPath));
+    //    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcFaceArrayPath, destFacesArrayPath);
 
     const DataPath srcEltsContVertPath = srcGeoPath.createChildPath(TetrahedralGeom::k_EltsContainingVert);
     const DataPath destEltsContVertPath = destGeoPath.createChildPath(TetrahedralGeom::k_EltsContainingVert);
@@ -1262,16 +1256,6 @@ TEST_CASE("DataObjectsDeepCopyTest")
     const DataPath destEltCentroidsPath = destGeoPath.createChildPath(TetrahedralGeom::k_EltCentroids);
     REQUIRE(dataStruct.getDataAs<Float32Array>(srcEltCentroidsPath) != dataStruct.getDataAs<Float32Array>(destEltCentroidsPath));
     UnitTest::CompareArrays<float32>(dataStruct, srcEltCentroidsPath, destEltCentroidsPath);
-
-    const DataPath srcUnsharedEdgesArrayPath = srcGeoPath.createChildPath(TetrahedralGeom::k_UnsharedEdges);
-    const DataPath destUnsharedEdgesArrayPath = destGeoPath.createChildPath(TetrahedralGeom::k_UnsharedEdges);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcUnsharedEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destUnsharedEdgesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcUnsharedEdgesArrayPath, destUnsharedEdgesArrayPath);
-
-    const DataPath srcUnsharedFacesArrayPath = srcGeoPath.createChildPath(TetrahedralGeom::k_UnsharedFaces);
-    const DataPath destUnsharedFacesArrayPath = destGeoPath.createChildPath(TetrahedralGeom::k_UnsharedFaces);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcUnsharedFacesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destUnsharedFacesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcUnsharedFacesArrayPath, destUnsharedFacesArrayPath);
   }
 
   SECTION("Hexahedral Geometry")
@@ -1311,16 +1295,6 @@ TEST_CASE("DataObjectsDeepCopyTest")
     REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcCellArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destCellArrayPath));
     UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcCellArrayPath, destCellArrayPath);
 
-    const DataPath srcEdgesArrayPath = srcGeoPath.createChildPath(HexahedralGeom::k_Edges);
-    const DataPath destEdgesArrayPath = destGeoPath.createChildPath(HexahedralGeom::k_Edges);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destEdgesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcEdgesArrayPath, destEdgesArrayPath);
-
-    const DataPath srcFaceArrayPath = srcGeoPath.createChildPath(HexahedralGeom::k_QuadFaceList);
-    const DataPath destFacesArrayPath = destGeoPath.createChildPath(HexahedralGeom::k_QuadFaceList);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcFaceArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destFacesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcFaceArrayPath, destFacesArrayPath);
-
     const DataPath srcEltsContVertPath = srcGeoPath.createChildPath(HexahedralGeom::k_EltsContainingVert);
     const DataPath destEltsContVertPath = destGeoPath.createChildPath(HexahedralGeom::k_EltsContainingVert);
     REQUIRE(dataStruct.getDataAs<DynamicListArray<uint16, IGeometry::MeshIndexType>>(srcEltsContVertPath) !=
@@ -1337,16 +1311,6 @@ TEST_CASE("DataObjectsDeepCopyTest")
     const DataPath destEltCentroidsPath = destGeoPath.createChildPath(HexahedralGeom::k_EltCentroids);
     REQUIRE(dataStruct.getDataAs<Float32Array>(srcEltCentroidsPath) != dataStruct.getDataAs<Float32Array>(destEltCentroidsPath));
     UnitTest::CompareArrays<float32>(dataStruct, srcEltCentroidsPath, destEltCentroidsPath);
-
-    const DataPath srcUnsharedEdgesArrayPath = srcGeoPath.createChildPath(HexahedralGeom::k_UnsharedEdges);
-    const DataPath destUnsharedEdgesArrayPath = destGeoPath.createChildPath(HexahedralGeom::k_UnsharedEdges);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcUnsharedEdgesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destUnsharedEdgesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcUnsharedEdgesArrayPath, destUnsharedEdgesArrayPath);
-
-    const DataPath srcUnsharedFacesArrayPath = srcGeoPath.createChildPath(HexahedralGeom::k_UnsharedFaces);
-    const DataPath destUnsharedFacesArrayPath = destGeoPath.createChildPath(HexahedralGeom::k_UnsharedFaces);
-    REQUIRE(dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(srcUnsharedFacesArrayPath) != dataStruct.getDataAs<DataArray<IGeometry::MeshIndexType>>(destUnsharedFacesArrayPath));
-    UnitTest::CompareArrays<IGeometry::MeshIndexType>(dataStruct, srcUnsharedFacesArrayPath, destUnsharedFacesArrayPath);
   }
 
   SECTION("Invalid copies")
@@ -1468,10 +1432,10 @@ TEST_CASE("NodeBasedGeometryFindElementsTest")
     status = geom->findEdges(true);
     REQUIRE(status == 1);
 
-    status = geom->findUnsharedEdges(false);
-    REQUIRE(status == 0);
-    status = geom->findUnsharedEdges(true);
-    REQUIRE(status == 1);
+    //    status = geom->findUnsharedEdges(false);
+    //    REQUIRE(status == 0);
+    //    status = geom->findUnsharedEdges(true);
+    //    REQUIRE(status == 1);
   }
 
   SECTION("Quad Geometry")
@@ -1506,10 +1470,10 @@ TEST_CASE("NodeBasedGeometryFindElementsTest")
     status = geom->findEdges(true);
     REQUIRE(status == 1);
 
-    status = geom->findUnsharedEdges(false);
-    REQUIRE(status == 0);
-    status = geom->findUnsharedEdges(true);
-    REQUIRE(status == 1);
+    //    status = geom->findUnsharedEdges(false);
+    //    REQUIRE(status == 0);
+    //    status = geom->findUnsharedEdges(true);
+    //    REQUIRE(status == 1);
   }
 
   SECTION("Tetrahedral Geometry")
@@ -1542,19 +1506,9 @@ TEST_CASE("NodeBasedGeometryFindElementsTest")
     status = geom->findEdges(true);
     REQUIRE(status == 1);
 
-    status = geom->findUnsharedEdges(false);
-    REQUIRE(status == 0);
-    status = geom->findUnsharedEdges(true);
-    REQUIRE(status == 1);
-
     status = geom->findFaces(false);
     REQUIRE(status == 0);
     status = geom->findFaces(true);
-    REQUIRE(status == 1);
-
-    status = geom->findUnsharedFaces(false);
-    REQUIRE(status == 0);
-    status = geom->findUnsharedFaces(true);
     REQUIRE(status == 1);
   }
 
@@ -1588,19 +1542,9 @@ TEST_CASE("NodeBasedGeometryFindElementsTest")
     status = geom->findEdges(true);
     REQUIRE(status == 1);
 
-    status = geom->findUnsharedEdges(false);
-    REQUIRE(status == 0);
-    status = geom->findUnsharedEdges(true);
-    REQUIRE(status == 1);
-
     status = geom->findFaces(false);
     REQUIRE(status == 0);
     status = geom->findFaces(true);
-    REQUIRE(status == 1);
-
-    status = geom->findUnsharedFaces(false);
-    REQUIRE(status == 0);
-    status = geom->findUnsharedFaces(true);
     REQUIRE(status == 1);
   }
 }

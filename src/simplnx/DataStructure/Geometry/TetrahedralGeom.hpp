@@ -21,8 +21,7 @@ public:
   static inline constexpr StringLiteral k_EltsContainingVert = "Elements Containing Vert";
   static inline constexpr StringLiteral k_EltNeighbors = "Tet Neighbors";
   static inline constexpr StringLiteral k_EltCentroids = "Tet Centroids";
-  static inline constexpr StringLiteral k_UnsharedEdges = "Unshared Edge List";
-  static inline constexpr StringLiteral k_UnsharedFaces = "Unshared Face List";
+
   static inline constexpr StringLiteral k_TypeName = "TetrahedralGeom";
 
   /**
@@ -169,18 +168,6 @@ public:
    * @return StatusCode
    */
   StatusCode findFaces(bool recalculate) override;
-
-  /**
-   * @brief
-   * @return StatusCode
-   */
-  StatusCode findUnsharedEdges(bool recalculate) override;
-
-  /**
-   * @brief
-   * @return StatusCode
-   */
-  StatusCode findUnsharedFaces(bool recalculate) override;
 
 protected:
   /**

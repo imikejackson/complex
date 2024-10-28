@@ -130,27 +130,6 @@ void INodeGeometry3D::deleteFaces()
   m_FaceListId.reset();
 }
 
-const std::optional<INodeGeometry3D::IdType>& INodeGeometry3D::getUnsharedFacesId() const
-{
-  return m_UnsharedFaceListId;
-}
-
-void INodeGeometry3D::setUnsharedFacedId(const OptionalId& id)
-{
-  m_UnsharedFaceListId = id;
-}
-
-const INodeGeometry3D::SharedFaceList* INodeGeometry3D::getUnsharedFaces() const
-{
-  return getDataStructureRef().getDataAs<SharedFaceList>(m_UnsharedFaceListId);
-}
-
-void INodeGeometry3D::deleteUnsharedFaces()
-{
-  getDataStructureRef().removeData(m_UnsharedFaceListId);
-  m_UnsharedFaceListId.reset();
-}
-
 const std::optional<INodeGeometry3D::IdType>& INodeGeometry3D::getPolyhedraAttributeMatrixId() const
 {
   return m_PolyhedronAttributeMatrixId;
@@ -211,14 +190,14 @@ void INodeGeometry3D::setPolyhedraAttributeMatrix(const AttributeMatrix& attribu
 INodeGeometry3D::SharedQuadList* INodeGeometry3D::createSharedQuadList(usize numQuads)
 {
   auto dataStore = std::make_unique<DataStore<MeshIndexType>>(std::vector<usize>{numQuads}, std::vector<usize>{4}, 0);
-  SharedQuadList* quads = DataArray<MeshIndexType>::Create(*getDataStructure(), k_QuadFaceList, std::move(dataStore), getId());
+  SharedQuadList* quads = DataArray<MeshIndexType>::Create(*getDataStructure(), k_SharedFaceList, std::move(dataStore), getId());
   return quads;
 }
 
 INodeGeometry3D::SharedTriList* INodeGeometry3D::createSharedTriList(usize numTris)
 {
   auto dataStore = std::make_unique<DataStore<MeshIndexType>>(std::vector<usize>{numTris}, std::vector<usize>{3}, 0);
-  SharedTriList* triangles = DataArray<MeshIndexType>::Create(*getDataStructure(), k_TriangleFaceList, std::move(dataStore), getId());
+  SharedTriList* triangles = DataArray<MeshIndexType>::Create(*getDataStructure(), k_SharedFaceList, std::move(dataStore), getId());
   return triangles;
 }
 
