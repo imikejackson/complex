@@ -1,10 +1,11 @@
-#include "ComputeTriangleGeomShapesFilter.hpp"
-#include "OrientationAnalysis/Filters/Algorithms/ComputeTriangleGeomShapes.hpp"
+#include "ComputeShapesTriangleGeomFilter.hpp"
+#include "OrientationAnalysis/Filters/Algorithms/ComputeShapesTriangleGeom.hpp"
 
 #include "simplnx/DataStructure/AttributeMatrix.hpp"
 #include "simplnx/DataStructure/DataPath.hpp"
 #include "simplnx/Filter/Actions/CreateArrayAction.hpp"
 #include "simplnx/Parameters/ArraySelectionParameter.hpp"
+#include "simplnx/Parameters/AttributeMatrixSelectionParameter.hpp"
 #include "simplnx/Parameters/DataGroupSelectionParameter.hpp"
 #include "simplnx/Parameters/DataObjectNameParameter.hpp"
 #include "simplnx/Parameters/GeometrySelectionParameter.hpp"
@@ -14,37 +15,37 @@ using namespace nx::core;
 namespace nx::core
 {
 //------------------------------------------------------------------------------
-std::string ComputeTriangleGeomShapesFilter::name() const
+std::string ComputeShapesTriangleGeomFilter::name() const
 {
-  return FilterTraits<ComputeTriangleGeomShapesFilter>::name.str();
+  return FilterTraits<ComputeShapesTriangleGeomFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string ComputeTriangleGeomShapesFilter::className() const
+std::string ComputeShapesTriangleGeomFilter::className() const
 {
-  return FilterTraits<ComputeTriangleGeomShapesFilter>::className;
+  return FilterTraits<ComputeShapesTriangleGeomFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid ComputeTriangleGeomShapesFilter::uuid() const
+Uuid ComputeShapesTriangleGeomFilter::uuid() const
 {
-  return FilterTraits<ComputeTriangleGeomShapesFilter>::uuid;
+  return FilterTraits<ComputeShapesTriangleGeomFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string ComputeTriangleGeomShapesFilter::humanName() const
+std::string ComputeShapesTriangleGeomFilter::humanName() const
 {
-  return "Compute Feature Shapes from Triangle Geometry";
+  return "Compute Feature Shapes (Triangle Geometry)";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> ComputeTriangleGeomShapesFilter::defaultTags() const
+std::vector<std::string> ComputeShapesTriangleGeomFilter::defaultTags() const
 {
-  return {className(), "Statistics", "Morphological", "SurfaceMesh", "Find"};
+  return {className(), "Statistics", "Morphological", "Find", "Generate", "Calculate", "Determine", "Omega3", "Axis Length", "Surface Mesh"};
 }
 
 //------------------------------------------------------------------------------
-Parameters ComputeTriangleGeomShapesFilter::parameters() const
+Parameters ComputeShapesTriangleGeomFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -55,13 +56,11 @@ Parameters ComputeTriangleGeomShapesFilter::parameters() const
                                                           ArraySelectionParameter::AllowedTypes{nx::core::DataType::int32}, ArraySelectionParameter::AllowedComponentShapes{{2}}));
 
   params.insertSeparator(Parameters::Separator{"Input Face Feature Data"});
-  params.insert(std::make_unique<AttributeMatrixSelectionParameter>(
-      k_FeatureAttributeMatrixPath_Key, "Face Feature Attribute Matrix", "The DataPath to the AttributeMatrix that holds feature data for the faces",
-      DataPath({"TriangleDataContainer", "Face Feature Data"}), DataGroupSelectionParameter::AllowedTypes{BaseGroup::GroupType::AttributeMatrix}));
+  params.insert(std::make_unique<AttributeMatrixSelectionParameter>(k_FeatureAttributeMatrixPath_Key, "Face Feature Attribute Matrix",
+                                                                    "The DataPath to the AttributeMatrix that holds feature data for the faces",
+                                                                    DataPath({"TriangleDataContainer", "Face Feature Data"})));
   params.insert(std::make_unique<ArraySelectionParameter>(k_CentroidsArrayPath_Key, "Face Feature Centroids", "Input DataPath to the **Feature Centroids** for the face data",
                                                           DataPath({"Face Feature Data", "Centroids"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_VolumesArrayPath_Key, "Face Feature Volumes", "Input DataPath to the **Feature Volumes** for the face data",
-                                                          DataPath({"Face Feature Data", "Volumes"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
 
   params.insertSeparator(Parameters::Separator{"Output Face Feature Data"});
   params.insert(std::make_unique<DataObjectNameParameter>(k_Omega3sArrayName_Key, "Omega3s", "The name of the DataArray that holds the calculated Omega3 values", "Omega3s"));
@@ -74,32 +73,32 @@ Parameters ComputeTriangleGeomShapesFilter::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::VersionType ComputeTriangleGeomShapesFilter::parametersVersion() const
+IFilter::VersionType ComputeShapesTriangleGeomFilter::parametersVersion() const
 {
-  return 1;
+  return 2;
+
+  // Version 1 -> 2
+  // Change 1:
+  // Removed input volumes array
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer ComputeTriangleGeomShapesFilter::clone() const
+IFilter::UniquePointer ComputeShapesTriangleGeomFilter::clone() const
 {
-  return std::make_unique<ComputeTriangleGeomShapesFilter>();
+  return std::make_unique<ComputeShapesTriangleGeomFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult ComputeTriangleGeomShapesFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+IFilter::PreflightResult ComputeShapesTriangleGeomFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                                         const std::atomic_bool& shouldCancel) const
 {
-
   auto pFaceLabelsArrayPathValue = filterArgs.value<DataPath>(k_FaceLabelsArrayPath_Key);
   auto pFeatureAttributeMatrixPath = filterArgs.value<DataPath>(k_FeatureAttributeMatrixPath_Key);
   auto pCentroidsArrayPathValue = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
-  auto pVolumesArrayPathValue = filterArgs.value<DataPath>(k_VolumesArrayPath_Key);
   auto omega3sArrayNameValue = filterArgs.value<DataObjectNameParameter::ValueType>(k_Omega3sArrayName_Key);
   auto axisLengthsArrayNameValue = filterArgs.value<DataObjectNameParameter::ValueType>(k_AxisLengthsArrayName_Key);
   auto axisEulerAnglesArrayNameValue = filterArgs.value<DataObjectNameParameter::ValueType>(k_AxisEulerAnglesArrayName_Key);
   auto aspectRatiosArrayNameValue = filterArgs.value<DataObjectNameParameter::ValueType>(k_AspectRatiosArrayName_Key);
-
-  PreflightResult preflightResult;
 
   nx::core::Result<OutputActions> resultOutputActions;
 
@@ -141,23 +140,19 @@ IFilter::PreflightResult ComputeTriangleGeomShapesFilter::preflightImpl(const Da
     resultOutputActions.value().appendAction(std::move(createArrayAction));
   }
 
-  // No preflight updated values are generated in this filter
-  std::vector<PreflightValue> preflightUpdatedValues;
-
-  // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
-  return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+  // Return both the resultOutputActions via std::move()
+  return {std::move(resultOutputActions)};
 }
 
 //------------------------------------------------------------------------------
-Result<> ComputeTriangleGeomShapesFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+Result<> ComputeShapesTriangleGeomFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                                       const std::atomic_bool& shouldCancel) const
 {
-  ComputeTriangleGeomShapesInputValues inputValues;
+  ComputeShapesTriangleGeomInputValues inputValues;
   inputValues.TriangleGeometryPath = filterArgs.value<DataPath>(k_TriGeometryDataPath_Key);
   inputValues.FaceLabelsArrayPath = filterArgs.value<DataPath>(k_FaceLabelsArrayPath_Key);
   inputValues.FeatureAttributeMatrixPath = filterArgs.value<DataPath>(k_FeatureAttributeMatrixPath_Key);
   inputValues.CentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
-  inputValues.VolumesArrayPath = filterArgs.value<DataPath>(k_VolumesArrayPath_Key);
 
   auto omega3sArrayNameValue = filterArgs.value<DataObjectNameParameter::ValueType>(k_Omega3sArrayName_Key);
   auto axisLengthsArrayNameValue = filterArgs.value<DataObjectNameParameter::ValueType>(k_AxisLengthsArrayName_Key);
@@ -169,6 +164,6 @@ Result<> ComputeTriangleGeomShapesFilter::executeImpl(DataStructure& dataStructu
   inputValues.AxisEulerAnglesArrayPath = inputValues.FeatureAttributeMatrixPath.createChildPath(axisEulerAnglesArrayNameValue);
   inputValues.AspectRatiosArrayPath = inputValues.FeatureAttributeMatrixPath.createChildPath(aspectRatiosArrayNameValue);
 
-  return ComputeTriangleGeomShapes(dataStructure, messageHandler, shouldCancel, &inputValues)();
+  return ComputeShapesTriangleGeom(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace nx::core
