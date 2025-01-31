@@ -55,15 +55,12 @@ void IGeometry::setSpatialDimensionality(uint32 value)
   m_SpacialDimensionality = value;
 }
 
-std::set<std::string> IGeometry::StringListFromGeometryType(const std::set<Type>& geomTypes)
+std::set<std::string> IGeometry::StringListFromGeometryType(const std::set<IGeometry::Type>& geomTypes)
 {
-  static const std::map<Type, std::string> k_TypeToStringMap = {{Type::Image, "ImageGeom"},   {Type::RectGrid, "RectGrid"}, {Type::Vertex, "Vertex"},           {Type::Edge, "Edge"},
-                                                                {Type::Triangle, "Triangle"}, {Type::Quad, "Quad"},         {Type::Tetrahedral, "Tetrahedral"}, {Type::Hexahedral, "Hexahedral"}};
-
   std::set<std::string> stringValues;
   for(auto geomType : geomTypes)
   {
-    stringValues.insert(k_TypeToStringMap.at(geomType));
+    stringValues.insert(IGeometry::k_GeomTypeStrings[to_underlying(geomType)]);
   }
   return stringValues;
 }
@@ -96,6 +93,11 @@ IGeometry::LengthUnit IGeometry::getUnits() const
 void IGeometry::setUnits(LengthUnit units)
 {
   m_Units = units;
+}
+
+std::string IGeometry::GeomTypeToString(IGeometry::Type geomType)
+{
+  return IGeometry::k_GeomTypeStrings[to_underlying(geomType)];
 }
 
 std::string IGeometry::LengthUnitToString(LengthUnit unit)
