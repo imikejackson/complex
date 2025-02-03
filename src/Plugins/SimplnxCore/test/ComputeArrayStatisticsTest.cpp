@@ -322,7 +322,8 @@ TEST_CASE("SimplnxCore::ComputeArrayStatisticsFilter: Test Algorithm By Index", 
 
   // Check resulting values
   {
-    auto* dataGroup = dataStructure.getDataAs<DataGroup>(statsDataPath);
+    auto* dataGroup = dataStructure.getDataAs<AttributeMatrix>(statsDataPath);
+    // auto* dataGroup = dataStructure.getDataAs<DataGroup>(statsDataPath);
     REQUIRE(dataGroup != nullptr);
     auto* lengthArray = dataStructure.getDataAs<UInt64Array>(statsDataPath.createChildPath(length));
     REQUIRE(lengthArray != nullptr);
