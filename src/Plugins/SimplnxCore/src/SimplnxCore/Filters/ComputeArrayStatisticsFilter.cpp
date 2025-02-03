@@ -58,7 +58,7 @@ OutputActions CreateCompatibleArrays(const DataStructure& dataStructure, const A
 
   OutputActions actions;
 
-  auto amAction = std::make_unique<CreateDataGroupAction>(destinationAttributeMatrixValue);
+  auto amAction = std::make_unique<CreateAttributeMatrixAction>(destinationAttributeMatrixValue, tupleDims);
 
   actions.appendAction(std::move(amAction));
 

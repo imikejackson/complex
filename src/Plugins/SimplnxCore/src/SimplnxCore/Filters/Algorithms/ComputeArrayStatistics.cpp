@@ -1100,16 +1100,16 @@ Result<> ComputeArrayStatistics::operator()()
     const auto& featureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureIdsArrayPath);
     numFeatures = findNumFeatures(featureIds);
 
-    //    auto* destAttrMatPtr = m_DataStructure.getDataAs<AttributeMatrix>(m_InputValues->DestinationAttributeMatrix);
-    //    destAttrMatPtr->resizeTuples({numFeatures});
+    auto* destAttrMatPtr = m_DataStructure.getDataAs<AttributeMatrix>(m_InputValues->DestinationAttributeMatrix);
+    destAttrMatPtr->resizeTuples({numFeatures});
 
-    for(const auto& array : arrays)
-    {
-      if(array != nullptr)
-      {
-        array->resizeTuples({numFeatures});
-      }
-    }
+    //    for(const auto& array : arrays)
+    //    {
+    //      if(array != nullptr)
+    //      {
+    //        array->resizeTuples({numFeatures});
+    //      }
+    //    }
   }
 
   const auto& inputArray = m_DataStructure.getDataRefAs<IDataArray>(m_InputValues->SelectedArrayPath);
