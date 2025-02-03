@@ -58,7 +58,7 @@ OutputActions CreateCompatibleArrays(const DataStructure& dataStructure, const A
 
   OutputActions actions;
 
-  auto amAction = std::make_unique<CreateDataGroupAction>(destinationAttributeMatrixValue);
+  auto amAction = std::make_unique<CreateAttributeMatrixAction>(destinationAttributeMatrixValue, tupleDims);
 
   actions.appendAction(std::move(amAction));
 
@@ -250,6 +250,7 @@ Parameters ComputeArrayStatisticsFilter::parameters() const
                                                 "Whether to compute the histogram bin ranges that contain the mode values.  This option requires that \" Find Mode \" is turned on.", false));
   params.insert(std::make_unique<DataObjectNameParameter>(k_ModalBinArrayName_Key, "Modal Histogram Bin Ranges Array Name",
                                                           "The name of the array that stores the histogram bin range(s) that contain the mode(s) of the data.", "Modal Histogram Bin Ranges"));
+
 
   params.insertSeparator(Parameters::Separator{"Output Data"});
   params.insert(
