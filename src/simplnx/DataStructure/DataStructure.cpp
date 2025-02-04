@@ -139,7 +139,7 @@ LinkedPath DataStructure::getLinkedPath(const DataPath& path) const
     }
 
     return LinkedPath(this, pathIds);
-  } catch(std::exception e)
+  } catch(const std::exception& e)
   {
     return LinkedPath();
   }
@@ -916,7 +916,6 @@ void DataStructure::recurseHierarchyToGraphViz(std::ostream& outputStream, const
 {
   for(const auto& path : paths)
   {
-    auto* dataObjectPtr = getData(path);
     // Output parent node, child node, and edge connecting them in .dot format
     outputStream << "\"" << parent << "\" -> \"" << path.getTargetName() << "\"\n";
 
