@@ -251,7 +251,6 @@ Parameters ComputeArrayStatisticsFilter::parameters() const
   params.insert(std::make_unique<DataObjectNameParameter>(k_ModalBinArrayName_Key, "Modal Histogram Bin Ranges Array Name",
                                                           "The name of the array that stores the histogram bin range(s) that contain the mode(s) of the data.", "Modal Histogram Bin Ranges"));
 
-
   params.insertSeparator(Parameters::Separator{"Output Data"});
   params.insert(
       std::make_unique<DataGroupCreationParameter>(k_DestinationAttributeMatrixPath_Key, "Destination Attribute Matrix", "Attribute Matrix in which to store the computed statistics", DataPath{}));
@@ -382,6 +381,11 @@ IFilter::PreflightResult ComputeArrayStatisticsFilter::preflightImpl(const DataS
   if(inputArrayPtr->getNumberOfComponents() != 1)
   {
     return {MakeErrorResult<OutputActions>(-57203, fmt::format("Input array must be a scalar array")), {}};
+  }
+
+  if(pFindHistogramValue && !pComputeByIndexValue)
+  {
+    return {MakeErrorResult<OutputActions>(-57213, fmt::format("Please use the 'Compute Attribute Array Frequency Histogram' filter to compute a histogram for a single array.")), {}};
   }
 
   AttributeMatrix::ShapeType tupleDims = {1};
