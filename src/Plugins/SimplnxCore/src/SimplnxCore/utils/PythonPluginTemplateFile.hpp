@@ -19,26 +19,26 @@ namespace nx::core
 inline std::string CamelCaseToSnakeCase(const std::string& input)
 {
   std::string result;
-  for(char ch : input)
+  for(const char letter : input)
   {
-    if(std::isupper(ch))
+    if(std::isupper(letter) != 0)
     {
       if(!result.empty())
       {
         result += '_';
       }
-      result += std::tolower(ch);
+      result += static_cast<char>(std::tolower(letter));
     }
     else
     {
-      result += ch;
+      result += letter;
     }
   }
   return result;
 }
 
-inline const std::string k_FilterIncludeInsertToken = "# FILTER_INCLUDE_INSERT";
-inline const std::string k_FilterNameInsertToken = "# FILTER_NAME_INSERT";
+// inline const std::string k_FilterIncludeInsertToken = "# FILTER_INCLUDE_INSERT";
+// inline const std::string k_FilterNameInsertToken = "# FILTER_NAME_INSERT";
 
 /**
  *
@@ -72,16 +72,16 @@ inline Result<> InsertFilterNameInPluginFiles(const std::filesystem::path& plugi
   {
     pluginName.pop_back();
   }
-  std::filesystem::path plugPath(pluginName);
-  pluginName = plugPath.stem().string();
+  // const std::filesystem::path plugPath(pluginName);
+  // pluginName = plugPath.stem().string();
 
-  fs::path pluginPyPath = pluginPath / "Plugin.py";
+  const fs::path pluginPyPath = pluginPath / "Plugin.py";
   if(!fs::exists(pluginPyPath))
   {
     return MakeErrorResult(-2000, fmt::format("Non-existent plugin file at path: {}", pluginPyPath.string()));
   }
 
-  fs::path initPyPath = pluginPath / "__init__.py";
+  const fs::path initPyPath = pluginPath / "__init__.py";
   if(!fs::exists(initPyPath))
   {
     return MakeErrorResult(-2001, fmt::format("Non-existent plugin file at path: {}", initPyPath.string()));
@@ -92,20 +92,20 @@ inline Result<> InsertFilterNameInPluginFiles(const std::filesystem::path& plugi
     std::ifstream file(initPyPath.string());
     std::stringstream buffer;
     buffer << file.rdbuf();
-    std::string content = buffer.str();
+    const std::string content = buffer.str();
     file.close();
     std::vector<std::string> lines = nx::core::StringUtilities::split(content, "\n", true);
     if(lines.back().empty())
     {
       lines.pop_back();
     }
-    // Create the output file by opening the same file for OVER WRITE.
+    // Create the output file by opening the same file for OVERWRITE.
     std::ofstream outFile = std::ofstream(initPyPath.string(), std::ios_base::binary | std::ios_base::trunc);
 
-    std::string filterMarkerLine = fmt::format("# FILTER_START: {}", filterName);
-    std::string lastMarkerLine = "def get_plugin():";
+    const std::string filterMarkerLine = fmt::format("# FILTER_START: {}", filterName);
+    const std::string lastMarkerLine = "def get_plugin():";
 
-    std::string filterImportToken = fmt::format("from {0}.{1} import {1}", pluginName, filterName);
+    // const std::string filterImportToken = fmt::format("from {0}.{1} import {1}", pluginName, filterName);
     bool insertToken = true;
     for(auto& line : lines)
     {
@@ -131,21 +131,21 @@ inline Result<> InsertFilterNameInPluginFiles(const std::filesystem::path& plugi
     std::ifstream file(pluginPyPath.string());
     std::stringstream buffer;
     buffer << file.rdbuf();
-    std::string content = buffer.str();
+    const std::string content = buffer.str();
     file.close();
     std::vector<std::string> lines = nx::core::StringUtilities::split(content, "\n", true);
     if(lines.back().empty())
     {
       lines.pop_back();
     }
-    // Create the output file by opening the same file for OVER WRITE.
+    // Create the output file by opening the same file for OVERWRITE.
     std::ofstream outFile = std::ofstream(pluginPyPath.string(), std::ios_base::binary | std::ios_base::trunc);
 
-    std::string filterMarkerLine = fmt::format("# FILTER_START: {}", filterName);
-    std::string lastMarkerLine = "import simplnx as nx";
+    const std::string filterMarkerLine = fmt::format("# FILTER_START: {}", filterName);
+    const std::string lastMarkerLine = "import simplnx as nx";
 
-    std::string filterImportToken = fmt::format("from {0}.{1} import {1}", pluginName, filterName);
-    std::string filterInsertToken = fmt::format("'{}'", filterName);
+    // const std::string filterImportToken = fmt::format("from {0}.{1} import {1}", pluginName, filterName);
+    // const std::string filterInsertToken = fmt::format("'{}'", filterName);
 
     bool insertToken = true;
     for(auto& line : lines)
@@ -172,17 +172,11 @@ inline Result<> InsertFilterNameInPluginFiles(const std::filesystem::path& plugi
 
 /**
  *
- * @param outputPath
- * @param filterName
- * @param humanName
- * @param uuidString
  * @return
  */
-inline Result<> WritePythonFilterToPlugin(const std::filesystem::path& pluginPath, const std::string& filterName)
+inline Result<> AtomicallyWriteFile(const std::string& content, const std::filesystem::path& outputFilePath)
 {
-  std::string content = GeneratePythonFilter(filterName, filterName, Uuid::GenerateV4().str());
-  fs::path outputPath = pluginPath / fmt::format("{}.py", filterName);
-  auto atomicFileResult = AtomicFile::Create(outputPath);
+  auto atomicFileResult = AtomicFile::Create(outputFilePath);
   if(atomicFileResult.invalid())
   {
     return ConvertResult(std::move(atomicFileResult));
@@ -191,22 +185,71 @@ inline Result<> WritePythonFilterToPlugin(const std::filesystem::path& pluginPat
   AtomicFile tempFile = std::move(atomicFileResult.value());
   {
     // Scope this so that the file closes first before we then 'commit' with the atomic file
-    std::ofstream fout(tempFile.tempFilePath(), std::ios_base::out | std::ios_base::binary);
-    if(!fout.is_open())
+    std::ofstream fileOut(tempFile.tempFilePath(), std::ios_base::out | std::ios_base::binary);
+    if(!fileOut.is_open())
     {
       return MakeErrorResult(-74100, fmt::format("Error creating and opening output file at path: {}", tempFile.tempFilePath().string()));
     }
 
-    fout << content;
+    fileOut << content;
   }
 
-  Result<> commitResult = tempFile.commit();
-  if(commitResult.invalid())
+  return tempFile.commit();
+}
+
+/**
+ *
+ * @param outputPath
+ * @param filterName
+ * @param humanName
+ * @param uuidString
+ * @return
+ */
+inline Result<> WritePythonFilterToPlugin(const std::filesystem::path& outputPath, const std::string& filterName, const std::string& humanName, bool updatePluginFiles)
+{
+  Result<> result;
+
+  // **************************************************************************
+  // Write Python Filter Skeleton code
+  // **************************************************************************
   {
-    return commitResult;
+    const std::string content = GeneratePythonFilter(filterName, humanName, Uuid::GenerateV4().str());
+    const fs::path outputFilePath = outputPath / fmt::format("{}.py", filterName);
+    result = MergeResults(result, AtomicallyWriteFile(content, outputFilePath));
   }
 
-  return InsertFilterNameInPluginFiles(pluginPath, filterName);
+  // **************************************************************************
+  // Write Matching Documentation Stub File
+  // **************************************************************************
+  {
+    std::stringstream docOut;
+    docOut << "# " << filterName << "\n";
+    docOut << "\n\n";
+    docOut << "## Group (Subgroup)\n";
+    docOut << "\n\n";
+    docOut << "## Description\n";
+    docOut << "\nThis filter....\n";
+    docOut << "## Parameters\n\n";
+    docOut << "List each parameter, its type and brief description\n";
+
+    docOut << "## Example Pipelines\n";
+    docOut << "  \n";
+    docOut << "  \n";
+    docOut << "\n";
+    docOut << "## License & Copyright\n";
+    docOut << "\n";
+    docOut << "Please see the description file distributed with this **Plugin**\n";
+
+    const fs::path outputFilePath = outputPath / ".." / ".." / "docs" / fmt::format("{}.md", filterName);
+
+    result = MergeResults(result, AtomicallyWriteFile(docOut.str(), outputFilePath));
+  }
+
+  if(updatePluginFiles)
+  {
+    result = MergeResults(result, InsertFilterNameInPluginFiles(outputPath, filterName));
+  }
+  return result;
 }
 
 /**
@@ -223,7 +266,7 @@ inline Result<> WritePythonFiltersToPlugin(const std::filesystem::path& pluginPa
   auto filterNamesSplit = StringUtilities::split(filterNames, ',');
   for(const auto& filterName : filterNamesSplit)
   {
-    auto filterWriteResult = nx::core::WritePythonFilterToPlugin(pluginPath, filterName);
+    auto filterWriteResult = nx::core::WritePythonFilterToPlugin(pluginPath, filterName, filterName, true);
     if(filterWriteResult.invalid())
     {
       return filterWriteResult;
@@ -232,45 +275,6 @@ inline Result<> WritePythonFiltersToPlugin(const std::filesystem::path& pluginPa
   }
 
   return result;
-}
-
-/**
- *
- * @param outputPath
- * @param filterName
- * @param humanName
- * @param uuidString
- * @return
- */
-inline Result<> WritePythonFilterToFile(const std::filesystem::path& outputPath, const std::string& filterName, const std::string& humanName, const std::string& uuidString)
-{
-
-  std::string content = GeneratePythonFilter(filterName, humanName, uuidString);
-  fs::path outputFilePath = outputPath / fmt::format("{}.py", filterName);
-  auto atomicFileResult = AtomicFile::Create(outputFilePath);
-  if(atomicFileResult.invalid())
-  {
-    return ConvertResult(std::move(atomicFileResult));
-  }
-  AtomicFile tempFile = std::move(atomicFileResult.value());
-  {
-    // Scope this so that the file closes first before we then 'commit' with the atomic file
-    std::ofstream fout(tempFile.tempFilePath(), std::ios_base::out | std::ios_base::binary);
-    if(!fout.is_open())
-    {
-      return MakeErrorResult(-74100, fmt::format("Error creating and opening output file at path: {}", tempFile.tempFilePath().string()));
-    }
-
-    fout << content;
-  }
-
-  Result<> commitResult = tempFile.commit();
-  if(commitResult.invalid())
-  {
-    return commitResult;
-  }
-
-  return {};
 }
 
 /**
@@ -294,16 +298,16 @@ inline std::string GeneratePythonPlugin(const std::string& pluginName, const std
   auto filterList = StringUtilities::split(pluginFilterList, ',');
   content = StringUtilities::replace(content, "#PLUGIN_FILTER_LIST#", fmt::format("{}", fmt::join(filterList, ", ")));
 
-  std::stringstream ss;
+  std::stringstream codeStream;
 
   for(const auto& name : filterList)
   {
-    ss << "# FILTER_START: " << name << "\n"
-       << "from ." << name << " import " << name << "\n"
-       << "_filters.append(" << name << ")\n"
-       << "# FILTER_END: " << name << "\n\n";
+    codeStream << "# FILTER_START: " << name << "\n"
+               << "from ." << name << " import " << name << "\n"
+               << "_filters.append(" << name << ")\n"
+               << "# FILTER_END: " << name << "\n\n";
   }
-  content = StringUtilities::replace(content, "#PLUGIN_IMPORT_CODE#", ss.str());
+  content = StringUtilities::replace(content, "#PLUGIN_IMPORT_CODE#", codeStream.str());
 
   return content;
 }
@@ -356,9 +360,7 @@ inline Result<> WritePythonPluginFiles(const std::filesystem::path& outputDirect
         return MakeErrorResult(-74100, fmt::format("Error creating and opening output file at path: {}", tempFile.tempFilePath().string()));
       }
 
-      std::string content = GeneratePythonPlugin(pluginName, pluginShortName, pluginDescription, pluginFilterList);
-
-      fout << content;
+      fout << GeneratePythonPlugin(pluginName, pluginShortName, pluginDescription, pluginFilterList);
     }
     Result<> commitResult = tempFile.commit();
     if(commitResult.invalid())
@@ -400,15 +402,15 @@ inline Result<> WritePythonPluginFiles(const std::filesystem::path& outputDirect
       aList.append("'get_plugin'");
       content = StringUtilities::replace(content, "#PLUGIN_FILTER_LIST#", aList);
 
-      std::stringstream ss;
+      std::stringstream codeStream;
       for(const auto& name : filterList)
       {
-        ss << "# FILTER_START: " << name << "\n"
-           << "from ." << name << " import " << name << "\n"
-           << "__all__.append('" << name << "')\n"
-           << "# FILTER_END: " << name << "\n\n";
+        codeStream << "# FILTER_START: " << name << "\n"
+                   << "from ." << name << " import " << name << "\n"
+                   << "__all__.append('" << name << "')\n"
+                   << "# FILTER_END: " << name << "\n\n";
       }
-      content = StringUtilities::replace(content, "#PLUGIN_IMPORT_CODE#", ss.str());
+      content = StringUtilities::replace(content, "#PLUGIN_IMPORT_CODE#", codeStream.str());
 
       fout << content;
     }
@@ -503,12 +505,17 @@ inline Result<> WritePythonPluginFiles(const std::filesystem::path& outputDirect
   }
 
   // Now loop over each Filter and generate the skeleton files
-  auto filterList = StringUtilities::split(pluginFilterList, ',');
-  for(const auto& name : filterList)
+  auto filterNamesSplit = StringUtilities::split(pluginFilterList, ',');
+  for(const auto& filterName : filterNamesSplit)
   {
-    WritePythonFilterToFile(pluginSrcPath, name, name, Uuid::GenerateV4().str());
+    auto filterWriteResult = nx::core::WritePythonFilterToPlugin(pluginSrcPath, filterName, filterName, false);
+    if(filterWriteResult.invalid())
+    {
+      return filterWriteResult;
+    }
+    result = MergeResults(result, filterWriteResult);
   }
 
-  return {};
+  return result;
 }
 } // namespace nx::core
